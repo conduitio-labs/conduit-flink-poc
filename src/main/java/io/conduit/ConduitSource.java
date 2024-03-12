@@ -10,6 +10,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 @Slf4j
 public class ConduitSource extends Connector {
+    private static final String KAFKA_TOPIC = "flink-topic-source";
+
     public ConduitSource(String appId, String plugin, Map<String, String> settings) {
         super(appId, Type.source, plugin, settings);
     }

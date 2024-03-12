@@ -13,6 +13,8 @@ import org.apache.kafka.common.serialization.Serializer;
 @Setter
 @Slf4j
 public class ConduitSink extends Connector {
+    private static final String KAFKA_TOPIC = "flink-topic-sink";
+
     private Class<? extends Serializer<? super String>> keySerializer;
     private Class<? extends Serializer<? super String>> valueSerializer;
 

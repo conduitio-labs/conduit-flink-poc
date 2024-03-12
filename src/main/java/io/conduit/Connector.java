@@ -17,8 +17,6 @@ import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 abstract class Connector {
     private static final String CONDUIT_EXEC = "/home/haris/projects/conduitio/conduit/conduit";
     private static final String BASE_DIR = "/home/haris/Desktop/conduit/flink-apps";
-
-    protected static final String KAFKA_TOPIC = "internal-topic";
     protected static final String KAFKA_SERVERS = "localhost:9092";
 
     enum Type {
