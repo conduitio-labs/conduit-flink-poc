@@ -24,6 +24,7 @@ public class ConduitSource extends Connector {
         return KafkaSource.<String>builder()
             .setTopics(KAFKA_TOPIC)
             .setBootstrapServers(KAFKA_SERVERS)
+            .setGroupId("conduit-" + appId + "-source")
             .setDeserializer(KafkaRecordDeserializationSchema.valueOnly(StringDeserializer.class))
             .build();
     }

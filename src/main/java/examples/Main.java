@@ -3,6 +3,7 @@ package examples;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.conduit.ConduitSink;
 import io.conduit.ConduitSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -37,7 +38,7 @@ public class Main {
         );
         conduitSink.setValueSerializer(StringSerializer.class);
 
-        in.sinkTo(conduitSink.buildKafkaSink());
+        in.sinkTo(conduitSink.buildKafkaSink()).setParallelism(1);
 
         env.execute("Flink Java API Skeleton");
     }
