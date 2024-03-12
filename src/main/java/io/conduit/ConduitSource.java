@@ -1,7 +1,6 @@
 package io.conduit;
 
 import java.util.Map;
-import java.util.UUID;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +10,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 @Slf4j
 public class ConduitSource extends Connector {
-    public ConduitSource(String plugin, Map<String, String> settings) {
-        super(Type.source, plugin, settings);
+    public ConduitSource(String appId, String plugin, Map<String, String> settings) {
+        super(appId, Type.source, plugin, settings);
     }
 
     @SneakyThrows
@@ -21,6 +20,7 @@ public class ConduitSource extends Connector {
 
         startPipeline(path, log);
 
+        // todo auto-create topic
         return KafkaSource.<String>builder()
             .setTopics(KAFKA_TOPIC)
             .setBootstrapServers(KAFKA_SERVERS)
@@ -29,22 +29,25 @@ public class ConduitSource extends Connector {
     }
 
     @Override
-    protected PipelineConfig buildPipeline() {
+    protected PipelineConfig buildPipeline(String appId) {
         return PipelineConfig.builder()
-            .id("source-pipeline-" + UUID.randomUUID())
+            .id("source-pipeline-" + appId)
             .status(PipelineConfig.Status.running)
-            .connector(
-                new ConnectorConfig(plugin + "-source", "source", plugin, settings)
-            ).connector(
-                new ConnectorConfig(
-                    "kafka-destination",
-                    "destination",
-                    "kafka",
-                    Map.of(
-                        "servers", KAFKA_SERVERS,
-                        "topic", KAFKA_TOPIC
-                    )
-                )
+            .connector(ConnectorConfig.builder()
+                .id(plugin + "-source")
+                .type("source")
+                .plugin(plugin)
+                .settings(settings)
+                .build()
+            ).connector(ConnectorConfig.builder()
+                .id("kafka-destination")
+                .type("destination")
+                .plugin("kafka")
+                .settings(Map.of(
+                    "servers", KAFKA_SERVERS,
+                    "topic", KAFKA_TOPIC
+                ))
+                .build()
             )
             .build();
     }

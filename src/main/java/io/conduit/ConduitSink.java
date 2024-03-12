@@ -1,7 +1,6 @@
 package io.conduit;
 
 import java.util.Map;
-import java.util.UUID;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +16,8 @@ public class ConduitSink extends Connector {
     private Class<? extends Serializer<? super String>> keySerializer;
     private Class<? extends Serializer<? super String>> valueSerializer;
 
-    public ConduitSink(String plugin, Map<String, String> settings) {
-        super(Type.destination, plugin, settings);
+    public ConduitSink(String appId, String plugin, Map<String, String> settings) {
+        super(appId, Type.destination, plugin, settings);
     }
 
     public Sink<String> buildKafkaSink() {
@@ -45,28 +44,31 @@ public class ConduitSink extends Connector {
     }
 
     @Override
-    protected PipelineConfig buildPipeline() {
+    protected PipelineConfig buildPipeline(String appId) {
         return PipelineConfig.builder()
-            .id("destination-pipeline-" + UUID.randomUUID())
+            .id("destination-pipeline-" + appId)
             .status(PipelineConfig.Status.running)
-            .connector(
-                new ConnectorConfig(
-                    "kafka-source",
-                    "source",
-                    "kafka",
-                    Map.of(
-                        "servers", KAFKA_SERVERS,
-                        "topic", KAFKA_TOPIC,
-                        "readFromBeginning", "true"
-                    )
-                )
-            ).connector(
-                new ConnectorConfig(
-                    plugin + "-destination",
-                    "destination",
-                    plugin,
-                    settings
-                )
+            .connector(ConnectorConfig.builder()
+                .id("kafka-source")
+                .type("source")
+                .plugin("kafka")
+                .settings(Map.of(
+                    "servers", KAFKA_SERVERS,
+                    "topic", KAFKA_TOPIC,
+                    "readFromBeginning", "true"
+                ))
+                .build()
+            ).connector(ConnectorConfig.builder()
+                .id(plugin + "-destination")
+                .type("destination")
+                .plugin(plugin)
+                .settings(settings)
+                .processor(ProcessorConfig.builder()
+                    .id("unwrap-opencdc")
+                    .plugin("unwrap.opencdc")
+                    .settings(Map.of())
+                    .build())
+                .build()
             )
             .build();
     }
