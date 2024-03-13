@@ -4,6 +4,7 @@ import java.util.Map;
 
 import io.conduit.ConnectorConfig;
 import io.conduit.PipelineConfig;
+import io.conduit.opencdc.Record;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
@@ -17,15 +18,15 @@ public class ConduitSource extends Connector {
         super(appId, Type.source, plugin, settings);
     }
 
-    public KafkaSource<String> buildKafkaSource() {
+    public KafkaSource<Record> buildKafkaSource() {
         createPipeline();
 
         // todo auto-create topic
-        return KafkaSource.<String>builder()
+        return KafkaSource.<Record>builder()
             .setTopics(KAFKA_TOPIC)
             .setBootstrapServers(KAFKA_SERVERS)
             .setGroupId("conduit-" + appId + "-source")
-            .setDeserializer(KafkaRecordDeserializationSchema.valueOnly(StringDeserializer.class))
+            .setDeserializer(KafkaRecordDeserializationSchema.valueOnly(RecordDeserializer.class))
             .build();
     }
 

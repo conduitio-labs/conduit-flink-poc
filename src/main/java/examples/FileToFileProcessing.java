@@ -1,14 +1,11 @@
 package examples;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
 
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
 import io.conduit.flink.ConduitSink;
 import io.conduit.flink.ConduitSource;
+import io.conduit.opencdc.Record;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -22,7 +19,7 @@ public class FileToFileProcessing {
         String appId = UUID.randomUUID().toString();
 
         // todo use builder
-        KafkaSource<String> source = new ConduitSource(
+        KafkaSource<Record> source = new ConduitSource(
             appId,
             "file",
             Map.of("path", "/tmp/file-source.txt")
@@ -32,15 +29,7 @@ public class FileToFileProcessing {
                 source,
                 WatermarkStrategy.noWatermarks(),
                 "file-source"
-            ).map((MapFunction<String, String>) value -> {
-                DocumentContext json = JsonPath.parse(value);
-                byte[] afterB = Base64.getDecoder().decode((String) json.read("$.payload.after"));
-
-                String updated = "hello, " + new String(afterB);
-                json.set("$.payload.after", Base64.getEncoder().encodeToString(updated.getBytes(StandardCharsets.UTF_8)));
-
-                return json.jsonString();
-            })
+            ).map((MapFunction<Record, String>) value -> null)
             .setParallelism(1);
 
         // todo use builder
