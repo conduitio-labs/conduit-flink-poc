@@ -21,14 +21,18 @@ public class FileToFileProcessing {
         // todo use builder
         KafkaSource<Record> source = new ConduitSource(
             appId,
-            "file",
-            Map.of("path", "/tmp/file-source.txt")
+            "generator",
+            Map.of(
+                "recordCount", "1",
+                "format.options", "id:int,name:string",
+                "format.type", "structured"
+            )
         ).buildKafkaSource();
 
         DataStream<String> in = env.fromSource(
                 source,
                 WatermarkStrategy.noWatermarks(),
-                "file-source"
+                "generator-source"
             ).map((MapFunction<Record, String>) value -> null)
             .setParallelism(1);
 
