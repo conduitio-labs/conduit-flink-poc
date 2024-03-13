@@ -1,77 +1,101 @@
 package io.conduit.flink;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Map;
 
+import io.conduit.ConnectorConfig;
 import io.conduit.PipelineConfig;
-import io.conduit.PipelinesConfig;
+import io.conduit.client.ApiClient;
+import io.conduit.client.api.ConnectorServiceApi;
+import io.conduit.client.api.PipelineServiceApi;
+import io.conduit.client.model.V1Connector;
+import io.conduit.client.model.V1ConnectorConfig;
+import io.conduit.client.model.V1ConnectorType;
+import io.conduit.client.model.V1CreateConnectorRequest;
+import io.conduit.client.model.V1CreatePipelineRequest;
+import io.conduit.client.model.V1Pipeline;
+import io.conduit.client.model.V1PipelineConfig;
+import io.conduit.client.model.V1PipelineStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.StartedProcess;
-import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 
 @Slf4j
 abstract class Connector {
-    private static final String CONDUIT_EXEC = "/home/haris/projects/conduitio/conduit/conduit";
-    private static final String BASE_DIR = "/home/haris/Desktop/conduit/flink-apps";
     protected static final String KAFKA_SERVERS = "localhost:9092";
 
     enum Type {
         source,
-        destination;
+        destination
     }
 
     protected final String appId;
     protected final Type type;
     protected final String plugin;
     protected final Map<String, String> settings;
-    private final Path conduitDir;
 
-    protected StartedProcess process;
+    private final PipelineServiceApi pipelineService;
+    private final ConnectorServiceApi connectorService;
 
-    public Connector(String appId, Type type, String plugin, Map<String, String> settings) {
+    protected Connector(String appId, Type type, String plugin, Map<String, String> settings) {
         this.appId = appId;
         this.type = type;
         this.plugin = plugin;
         this.settings = settings;
-        this.conduitDir = makeConduitDir();
+        ApiClient apiClient = new ApiClient().setBasePath("http://localhost:8080");
+        this.pipelineService = new PipelineServiceApi(apiClient);
+        this.connectorService = new ConnectorServiceApi(apiClient);
     }
 
-    protected abstract PipelineConfig buildPipeline(String appId);
+    protected abstract PipelineConfig buildPipeline();
 
     @SneakyThrows
-    protected String writeConfigFile() {
-        PipelineConfig pipeline = buildPipeline(appId);
+    protected void createPipeline() {
+        PipelineConfig pipeline = buildPipeline();
 
-        PipelinesConfig cfg = new PipelinesConfig(List.of(pipeline));
+        V1CreatePipelineRequest req = new V1CreatePipelineRequest()
+            .config(new V1PipelineConfig()
+                .name(pipeline.getName())
+                .description(pipeline.getDescription())
+            );
 
-        Path path = conduitDir.resolve("pipeline.yaml");
-        Files.write(path, cfg.yamlBytes(), StandardOpenOption.CREATE);
+        V1Pipeline pipelineResp = pipelineService.pipelineServiceCreatePipeline(req);
 
-        log.info("pipeline written at {}", path);
-        return path.toString();
-    }
-
-    @SneakyThrows
-    protected void startPipeline(String path, Logger log) {
-        this.process = new ProcessExecutor()
-            .command(CONDUIT_EXEC, "--pipelines.path=" + path, "--api.enabled=false")
-            .redirectOutput(Slf4jStream.of(log).asInfo())
-            .directory(conduitDir.toFile())
-            .start();
-    }
-
-    private Path makeConduitDir() {
-        Path path = Path.of(BASE_DIR, String.format("%s/%s", appId, type));
-        if (!path.toFile().mkdirs()) {
-            throw new IllegalStateException("failed creating directory structure: " + path);
+        for (ConnectorConfig conn : pipeline.getConnectors()) {
+            V1Connector connResp = connectorService.connectorServiceCreateConnector(
+                makeConnectorRequest(pipelineResp.getId(), conn)
+            );
         }
 
-        return path;
+        pipelineService.pipelineServiceStartPipeline(pipelineResp.getId());
+
+        LocalDateTime deadline = LocalDateTime.now().plusSeconds(30);
+
+        var status = V1PipelineStatus.STOPPED;
+
+        while (status == V1PipelineStatus.STOPPED && LocalDateTime.now().isBefore(deadline)) {
+            Thread.sleep(1_000);
+
+            V1Pipeline p = pipelineService.pipelineServiceGetPipeline(pipelineResp.getId());
+            status = p.getState().getStatus();
+        }
+
+        if (status == V1PipelineStatus.DEGRADED) {
+            throw new IllegalStateException("pipeline is degraded");
+        }
+    }
+
+    private V1CreateConnectorRequest makeConnectorRequest(String pipelineId, ConnectorConfig conn) {
+        return new V1CreateConnectorRequest()
+            .pipelineId(pipelineId)
+            .type(toV1ConnectorType(conn.getType()))
+            .plugin(conn.getPlugin())
+            .config(new V1ConnectorConfig()
+                .name(conn.getId())
+                .settings(conn.getSettings())
+            );
+    }
+
+    private V1ConnectorType toV1ConnectorType(String type) {
+        return V1ConnectorType.fromValue("TYPE_" + type.toUpperCase());
     }
 }

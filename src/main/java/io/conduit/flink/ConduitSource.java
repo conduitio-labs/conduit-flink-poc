@@ -4,7 +4,6 @@ import java.util.Map;
 
 import io.conduit.ConnectorConfig;
 import io.conduit.PipelineConfig;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
@@ -18,11 +17,8 @@ public class ConduitSource extends Connector {
         super(appId, Type.source, plugin, settings);
     }
 
-    @SneakyThrows
     public KafkaSource<String> buildKafkaSource() {
-        String path = writeConfigFile();
-
-        startPipeline(path, log);
+        createPipeline();
 
         // todo auto-create topic
         return KafkaSource.<String>builder()
@@ -34,9 +30,10 @@ public class ConduitSource extends Connector {
     }
 
     @Override
-    protected PipelineConfig buildPipeline(String appId) {
-        return PipelineConfig.builder()
+    protected PipelineConfig buildPipeline() {
+        PipelineConfig pipeline = PipelineConfig.builder()
             .id("source-pipeline-" + appId)
+            .name(plugin + "-source-pipeline")
             .status(PipelineConfig.Status.running)
             .connector(ConnectorConfig.builder()
                 .id(plugin + "-source")
@@ -55,5 +52,7 @@ public class ConduitSource extends Connector {
                 .build()
             )
             .build();
+
+        return pipeline;
     }
 }

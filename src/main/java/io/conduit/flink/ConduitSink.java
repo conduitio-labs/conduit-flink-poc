@@ -26,9 +26,7 @@ public class ConduitSink extends Connector {
     }
 
     public Sink<String> buildKafkaSink() {
-        String path = writeConfigFile();
-
-        startPipeline(path, log);
+        createPipeline();
 
         KafkaRecordSerializationSchemaBuilder<String> serializerBuilder = KafkaRecordSerializationSchema
             .<String>builder()
@@ -49,10 +47,11 @@ public class ConduitSink extends Connector {
     }
 
     @Override
-    protected PipelineConfig buildPipeline(String appId) {
+    protected PipelineConfig buildPipeline() {
         return PipelineConfig.builder()
             .id("destination-pipeline-" + appId)
             .status(PipelineConfig.Status.running)
+            .name(plugin + "-destination-pipeline")
             .connector(ConnectorConfig.builder()
                 .id("kafka-source")
                 .type("source")
