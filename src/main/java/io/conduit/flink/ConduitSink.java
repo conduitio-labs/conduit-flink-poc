@@ -70,7 +70,11 @@ public class ConduitSink extends Connector {
                 .processor(ProcessorConfig.builder()
                     .id("unwrap-opencdc")
                     .plugin("unwrap.opencdc")
-                    .settings(Map.of())
+                    // todo needed because the serialization library
+                    // translates empty maps into null, which Conduit cannot handle
+                    .settings(Map.of(
+                        "field", ".Payload.After"
+                    ))
                     .build())
                 .build()
             )

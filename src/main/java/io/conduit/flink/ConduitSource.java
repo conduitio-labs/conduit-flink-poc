@@ -32,8 +32,7 @@ public class ConduitSource extends Connector {
     @Override
     protected PipelineConfig buildPipeline() {
         PipelineConfig pipeline = PipelineConfig.builder()
-            .id("source-pipeline-" + appId)
-            .name(plugin + "-source-pipeline")
+            .name(plugin + "-source-pipeline-" + appId)
             .status(PipelineConfig.Status.running)
             .connector(ConnectorConfig.builder()
                 .id(plugin + "-source")
