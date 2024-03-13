@@ -11,9 +11,8 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.kafka.common.serialization.StringSerializer;
 
-public class FileToFileProcessing {
+public class GeneratorToFileProcessing {
     public static void main(String[] args) throws Exception {
         var env = StreamExecutionEnvironment.getExecutionEnvironment();
         String appId = UUID.randomUUID().toString();
@@ -29,11 +28,14 @@ public class FileToFileProcessing {
             )
         ).buildKafkaSource();
 
-        DataStream<String> in = env.fromSource(
+        DataStream<Record> in = env.fromSource(
                 source,
                 WatermarkStrategy.noWatermarks(),
                 "generator-source"
-            ).map((MapFunction<Record, String>) value -> null)
+            ).map((MapFunction<Record, Record>) value -> {
+                value.getMetadata().put("processed-by", "flink");
+                return value;
+            })
             .setParallelism(1);
 
         // todo use builder
@@ -42,7 +44,6 @@ public class FileToFileProcessing {
             "file",
             Map.of("path", "/tmp/file-destination.txt")
         );
-        conduitSink.setValueSerializer(StringSerializer.class);
 
         in.sinkTo(conduitSink.buildKafkaSink()).setParallelism(1);
 

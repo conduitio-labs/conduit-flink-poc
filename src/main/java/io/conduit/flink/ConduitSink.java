@@ -5,6 +5,7 @@ import java.util.Map;
 import io.conduit.ConnectorConfig;
 import io.conduit.PipelineConfig;
 import io.conduit.ProcessorConfig;
+import io.conduit.opencdc.Record;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.connector.sink2.Sink;
@@ -19,28 +20,21 @@ public class ConduitSink extends Connector {
     private static final String KAFKA_TOPIC = "flink-topic-sink";
 
     private Class<? extends Serializer<? super String>> keySerializer;
-    private Class<? extends Serializer<? super String>> valueSerializer;
+    private Class<? extends Serializer<? super Record>> valueSerializer;
 
     public ConduitSink(String appId, String plugin, Map<String, String> settings) {
         super(appId, Type.destination, plugin, settings);
     }
 
-    public Sink<String> buildKafkaSink() {
+    public Sink<Record> buildKafkaSink() {
         createPipeline();
 
-        KafkaRecordSerializationSchemaBuilder<String> serializerBuilder = KafkaRecordSerializationSchema
-            .<String>builder()
-            .setTopic(KAFKA_TOPIC);
+        KafkaRecordSerializationSchemaBuilder<Record> serializerBuilder = KafkaRecordSerializationSchema
+            .<Record>builder()
+            .setTopic(KAFKA_TOPIC)
+            .setKafkaValueSerializer(RecordSerializer.class);
 
-        if (this.keySerializer != null) {
-            serializerBuilder.setKafkaKeySerializer(this.keySerializer);
-        }
-
-        if (valueSerializer != null) {
-            serializerBuilder.setKafkaValueSerializer(this.valueSerializer);
-        }
-
-        return KafkaSink.<String>builder()
+        return KafkaSink.<Record>builder()
             .setRecordSerializer(serializerBuilder.build())
             .setBootstrapServers(KAFKA_SERVERS)
             .build();
