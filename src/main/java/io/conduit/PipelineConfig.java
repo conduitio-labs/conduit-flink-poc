@@ -12,7 +12,7 @@ import lombok.SneakyThrows;
 @Builder
 @Getter
 public class PipelineConfig {
-    enum Status {
+    public enum Status {
         running, stopped
     }
 

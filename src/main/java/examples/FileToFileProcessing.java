@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import io.conduit.ConduitSink;
-import io.conduit.ConduitSource;
+import io.conduit.flink.ConduitSink;
+import io.conduit.flink.ConduitSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.connector.kafka.source.KafkaSource;

@@ -1,7 +1,10 @@
-package io.conduit;
+package io.conduit.flink;
 
 import java.util.Map;
 
+import io.conduit.ConnectorConfig;
+import io.conduit.PipelineConfig;
+import io.conduit.ProcessorConfig;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.connector.sink2.Sink;

@@ -2,6 +2,7 @@ package io.conduit;
 
 import java.util.Map;
 
+import io.conduit.flink.ConduitSource;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.junit.jupiter.api.Test;
 

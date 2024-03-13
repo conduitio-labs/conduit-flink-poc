@@ -1,4 +1,4 @@
-package io.conduit;
+package io.conduit.flink;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -6,6 +6,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 
+import io.conduit.PipelineConfig;
+import io.conduit.PipelinesConfig;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;

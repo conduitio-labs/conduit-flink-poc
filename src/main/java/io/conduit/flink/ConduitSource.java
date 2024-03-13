@@ -1,7 +1,9 @@
-package io.conduit;
+package io.conduit.flink;
 
 import java.util.Map;
 
+import io.conduit.ConnectorConfig;
+import io.conduit.PipelineConfig;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.connector.kafka.source.KafkaSource;
