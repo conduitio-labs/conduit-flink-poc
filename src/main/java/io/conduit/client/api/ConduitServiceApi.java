@@ -8,6 +8,7 @@ import io.conduit.ConnectorConfig;
 import io.conduit.PipelineConfig;
 import io.conduit.ProcessorConfig;
 import io.conduit.client.ApiClient;
+import io.conduit.client.ApiException;
 import io.conduit.client.model.*;
 import lombok.SneakyThrows;
 
@@ -23,8 +24,7 @@ public class ConduitServiceApi {
         this.processorService = new ProcessorServiceApi(apiClient);
     }
 
-    @SneakyThrows
-    public String createPipeline(PipelineConfig cfg) {
+    public String createPipeline(PipelineConfig cfg) throws ApiException {
         V1CreatePipelineRequest req = new V1CreatePipelineRequest()
             .config(new V1PipelineConfig()
                 .name(cfg.getName())
@@ -86,5 +86,15 @@ public class ConduitServiceApi {
         }
 
         return status;
+    }
+
+    @SneakyThrows
+    public String getPipelineIdForName(String name) {
+        List<V1Pipeline> pipelines = pipelineService.pipelineServiceListPipelines(name);
+        if (pipelines.isEmpty()) {
+            return null;
+        }
+
+        return pipelines.get(0).getId();
     }
 }

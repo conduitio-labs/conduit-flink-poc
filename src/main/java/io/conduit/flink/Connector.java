@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Map;
 
 import io.conduit.PipelineConfig;
+import io.conduit.client.ApiException;
 import io.conduit.client.api.ConduitServiceApi;
 import io.conduit.client.model.V1PipelineStatus;
 import lombok.SneakyThrows;
@@ -38,7 +39,17 @@ abstract class Connector {
     @SneakyThrows
     protected void createPipeline() {
         PipelineConfig pipeline = buildPipeline();
-        var id = conduit.createPipeline(pipeline);
+        String id;
+        try {
+            id = conduit.createPipeline(pipeline);
+        } catch (ApiException e) {
+            if (pipelineExists(e)) {
+                log.info("pipeline already exists");
+                id = conduit.getPipelineIdForName(pipeline.getName());
+            } else {
+                throw e;
+            }
+        }
 
         var status = conduit.waitForPipeline(id, Duration.ofSeconds(30));
         if (status != V1PipelineStatus.RUNNING) {
@@ -46,5 +57,9 @@ abstract class Connector {
                 String.format("pipeline %s is in state %s", pipeline.getName(), status)
             );
         }
+    }
+
+    private boolean pipelineExists(ApiException e) {
+        return e.getCode() == 409 && e.getResponseBody().contains("pipeline name already exists");
     }
 }
