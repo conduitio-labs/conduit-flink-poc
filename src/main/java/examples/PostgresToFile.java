@@ -12,7 +12,7 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class GeneratorToFileProcessing {
+public class PostgresToFile {
     public static void main(String[] args) throws Exception {
         var env = StreamExecutionEnvironment.getExecutionEnvironment();
         // Used to correlate all the pipelines which are part of this app
@@ -26,18 +26,20 @@ public class GeneratorToFileProcessing {
         // todo use builder
         KafkaSource<Record> source = new ConduitSource(
             appId,
-            "generator",
+            "builtin:postgres",
             Map.of(
-                "recordCount", "1",
-                "format.options", "id:int,name:string",
-                "format.type", "structured"
+                "url", "postgresql://meroxauser:meroxapass@localhost/meroxadb?sslmode=disable",
+                "key", "id",
+                "table", "employees",
+                "snapshotMode", "never",
+                "cdcMode", "logrepl"
             )
         ).buildKafkaSource();
 
         DataStream<Record> in = env.fromSource(
                 source,
                 WatermarkStrategy.noWatermarks(),
-                "generator-source"
+                "demo-postgres-source"
             ).map((MapFunction<Record, Record>) value -> {
                 value.getMetadata().put("processed-by", "flink");
                 return value;
