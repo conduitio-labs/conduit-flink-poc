@@ -7,6 +7,7 @@ import io.conduit.PipelineConfig;
 import io.conduit.opencdc.Record;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 
 @Slf4j
@@ -24,7 +25,8 @@ public class ConduitSource extends Connector {
         return KafkaSource.<Record>builder()
             .setTopics(KAFKA_TOPIC)
             .setBootstrapServers(KAFKA_SERVERS)
-            .setGroupId("conduit-" + appId + "-source")
+            .setGroupId("conduit-source-" + appId)
+            .setStartingOffsets(OffsetsInitializer.earliest())
             .setDeserializer(KafkaRecordDeserializationSchema.valueOnly(RecordDeserializer.class))
             .build();
     }

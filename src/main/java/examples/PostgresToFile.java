@@ -1,7 +1,7 @@
 package examples;
 
+import java.time.Duration;
 import java.util.Map;
-import java.util.UUID;
 
 import io.conduit.flink.ConduitSink;
 import io.conduit.flink.ConduitSource;
@@ -16,12 +16,7 @@ public class PostgresToFile {
     public static void main(String[] args) throws Exception {
         var env = StreamExecutionEnvironment.getExecutionEnvironment();
         // Used to correlate all the pipelines which are part of this app
-        String appId;
-        if (args.length == 1) {
-            appId = args[0];
-        } else {
-            appId = UUID.randomUUID().toString();
-        }
+        String appId = "conduit-flink-demo";
 
         // todo use builder
         KafkaSource<Record> source = new ConduitSource(
@@ -38,10 +33,11 @@ public class PostgresToFile {
 
         DataStream<Record> in = env.fromSource(
                 source,
-                WatermarkStrategy.noWatermarks(),
+                WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(1)),
                 "demo-postgres-source"
             ).map((MapFunction<Record, Record>) value -> {
                 value.getMetadata().put("processed-by", "flink");
+                value.getMetadata().put("another-key", "flink-value");
                 return value;
             })
             .setParallelism(1);
