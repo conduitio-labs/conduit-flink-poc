@@ -7,6 +7,7 @@ services:
     volumes:
       - "pg_0_data:/bitnami/postgresql"
       - "./conf.d/:/bitnami/postgresql/conf/conf.d/"
+      - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "meroxadb", "-U", "meroxauser" ]
       timeout: 30s

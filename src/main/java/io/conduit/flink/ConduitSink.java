@@ -12,15 +12,11 @@ import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchemaBuilder;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
-import org.apache.kafka.common.serialization.Serializer;
 
 @Setter
 @Slf4j
 public class ConduitSink extends Connector {
     private static final String KAFKA_TOPIC = "flink-topic-sink";
-
-    private Class<? extends Serializer<? super String>> keySerializer;
-    private Class<? extends Serializer<? super Record>> valueSerializer;
 
     public ConduitSink(String appId, String plugin, Map<String, String> settings) {
         super(appId, Type.destination, plugin, settings);
