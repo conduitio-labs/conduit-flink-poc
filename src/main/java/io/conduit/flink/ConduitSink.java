@@ -43,7 +43,6 @@ public class ConduitSink extends Connector {
     @Override
     protected PipelineConfig buildPipeline() {
         return PipelineConfig.builder()
-            .status(PipelineConfig.Status.running)
             .name(plugin + "-destination-pipeline-" + appId)
             .connector(ConnectorConfig.builder()
                 .id("kafka-source")

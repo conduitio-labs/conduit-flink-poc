@@ -8,7 +8,7 @@ import lombok.SneakyThrows;
 import org.apache.kafka.common.serialization.Serializer;
 
 public class RecordSerializer implements Serializer<Record> {
-    public static final ObjectMapper mapper = JsonMapper.builder()
+    private static final ObjectMapper mapper = JsonMapper.builder()
         .enable(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
         .build();
 

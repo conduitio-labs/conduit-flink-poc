@@ -8,7 +8,7 @@ import lombok.SneakyThrows;
 import org.apache.kafka.common.serialization.Deserializer;
 
 public class RecordDeserializer implements Deserializer<Record> {
-    public static final ObjectMapper mapper = JsonMapper.builder()
+    private static final ObjectMapper mapper = JsonMapper.builder()
         .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
         .build();
 

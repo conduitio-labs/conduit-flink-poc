@@ -8,7 +8,6 @@ import io.conduit.opencdc.Record;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
-import org.apache.kafka.common.serialization.StringDeserializer;
 
 @Slf4j
 public class ConduitSource extends Connector {
@@ -32,9 +31,8 @@ public class ConduitSource extends Connector {
 
     @Override
     protected PipelineConfig buildPipeline() {
-        PipelineConfig pipeline = PipelineConfig.builder()
+        return PipelineConfig.builder()
             .name(plugin + "-source-pipeline-" + appId)
-            .status(PipelineConfig.Status.running)
             .connector(ConnectorConfig.builder()
                 .id(plugin + "-source")
                 .type("source")
@@ -52,7 +50,5 @@ public class ConduitSource extends Connector {
                 .build()
             )
             .build();
-
-        return pipeline;
     }
 }

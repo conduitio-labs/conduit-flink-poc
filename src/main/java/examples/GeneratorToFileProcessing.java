@@ -15,6 +15,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 public class GeneratorToFileProcessing {
     public static void main(String[] args) throws Exception {
         var env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // Used to correlate all the pipelines which are part of this app
         String appId = UUID.randomUUID().toString();
 
         // todo use builder
