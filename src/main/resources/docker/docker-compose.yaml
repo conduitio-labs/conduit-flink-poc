@@ -1,5 +1,11 @@
 version: '3'
 services:
+  conduit:
+    image: ghcr.io/conduitio/conduit:v0.9.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/tmp/file-destination.txt:/tmp/file-destination.txt"
   pg-0:
     image: debezium/postgres:14
     ports:
@@ -46,7 +52,6 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      # KAFKA_MESSAGE_MAX_BYTES: 100
   init-kafka:
     image: confluentinc/cp-kafka:7.0.0
     depends_on:

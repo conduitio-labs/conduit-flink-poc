@@ -46,7 +46,7 @@ public class ConduitSource extends Connector {
                 .type("destination")
                 .plugin("kafka")
                 .settings(Map.of(
-                    "servers", KAFKA_SERVERS,
+                    "servers", KAFKA_SERVERS_INTERNAL_ADDRESS,
                     "topic", KAFKA_TOPIC
                 ))
                 .build()

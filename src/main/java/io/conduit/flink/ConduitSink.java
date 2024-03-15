@@ -45,7 +45,7 @@ public class ConduitSink extends Connector {
                 .type("source")
                 .plugin("kafka")
                 .settings(Map.of(
-                    "servers", KAFKA_SERVERS,
+                    "servers", KAFKA_SERVERS_INTERNAL_ADDRESS,
                     "topic", KAFKA_TOPIC,
                     "readFromBeginning", "true"
                 ))

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 abstract class Connector {
     protected static final String KAFKA_SERVERS = "localhost:9092";
+    protected static final String KAFKA_SERVERS_INTERNAL_ADDRESS = "kafka:29092";
 
     enum Type {
         source,
