@@ -1,6 +1,7 @@
 package examples;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 
 import io.conduit.flink.ConduitSink;
@@ -14,7 +15,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class PostgresToFile {
     public static void main(String[] args) throws Exception {
-        var env = StreamExecutionEnvironment.getExecutionEnvironment();
+        var env = StreamExecutionEnvironment.getExecutionEnvironment().enableCheckpointing(1000);
         // Used to correlate all the pipelines which are part of this app
         String appId = "conduit-flink-demo";
 
@@ -45,8 +46,20 @@ public class PostgresToFile {
         // todo use builder
         var conduitSink = new ConduitSink(
             appId,
-            "file",
-            Map.of("path", "/tmp/file-destination.txt")
+            "snowflake",
+            new HashMap<>() {{
+                put("snowflake.username", "haris");
+                put("snowflake.password", "");
+                put("snowflake.table", "EMPLOYEES");
+                put("snowflake.host", "zxa25233.us-east-1.snowflakecomputing.com");
+                put("snowflake.port", "443");
+                put("snowflake.database", "CONDUIT_TEST_DB");
+                put("snowflake.schema", "STREAM_DATA");
+                put("snowflake.warehouse", "COMPUTE_WH");
+                put("snowflake.stage", "FLINK_APP_STAGE");
+                put("snowflake.primaryKey", "id");
+                put("snowflake.format", "csv");
+            }}
         );
 
         in.sinkTo(conduitSink.buildKafkaSink()).setParallelism(1);
