@@ -40,8 +40,8 @@ public class PostgresToFile {
                 WatermarkStrategy.forMonotonousTimestamps(),
                 "demo-postgres-source"
             ).map((MapFunction<Record, Record>) value -> {
-                value.getMetadata().put("x-processed-by", "flink-app");
-                ((StructuredData) value.getPayload().getAfter()).put("department", "hr");
+                value.getMetadata().put("processed-by", "flink-app");
+                // ((StructuredData) value.getPayload().getAfter()).put("department", "hr");
                 return value;
             })
             .setParallelism(1);
