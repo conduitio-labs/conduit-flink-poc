@@ -16,7 +16,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 public class PostgresToFile {
     public static void main(String[] args) throws Exception {
         // Create the execution environment, configure checkpointing
-        var env = StreamExecutionEnvironment.getExecutionEnvironment().enableCheckpointing(1000);
+        var env = StreamExecutionEnvironment.getExecutionEnvironment().enableCheckpointing(200);
         env.getCheckpointConfig().setCheckpointStorage("file:///tmp/flink-checkpoint-storage/");
 
         // Used to correlate all the pipelines which are part of this app
@@ -40,8 +40,7 @@ public class PostgresToFile {
                 WatermarkStrategy.forMonotonousTimestamps(),
                 "demo-postgres-source"
             ).map((MapFunction<Record, Record>) value -> {
-                value.getMetadata().put("processed-by", "flink");
-                value.getMetadata().put("another-key", "flink-value");
+                value.getMetadata().put("x-processed-by", "flink-app");
                 ((StructuredData) value.getPayload().getAfter()).put("department", "engineering");
                 return value;
             })
