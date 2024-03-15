@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 
 @Slf4j
 public class ConduitSource extends Connector {
@@ -26,8 +27,7 @@ public class ConduitSource extends Connector {
             .setTopics(KAFKA_TOPIC)
             .setBootstrapServers(KAFKA_SERVERS)
             .setGroupId("conduit-source-" + appId)
-            .setStartingOffsets(OffsetsInitializer.committedOffsets())
-            .setProperty("commit.offsets.on.checkpoint", "true")
+            .setStartingOffsets(OffsetsInitializer.committedOffsets(OffsetResetStrategy.EARLIEST))
             .setDeserializer(KafkaRecordDeserializationSchema.valueOnly(RecordDeserializer.class))
             .build();
     }

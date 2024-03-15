@@ -41,7 +41,7 @@ public class PostgresToFile {
                 "demo-postgres-source"
             ).map((MapFunction<Record, Record>) value -> {
                 value.getMetadata().put("x-processed-by", "flink-app");
-                ((StructuredData) value.getPayload().getAfter()).put("department", "engineering");
+                ((StructuredData) value.getPayload().getAfter()).put("department", "hr");
                 return value;
             })
             .setParallelism(1);
