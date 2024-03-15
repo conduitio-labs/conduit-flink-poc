@@ -6,6 +6,7 @@ import java.util.Map;
 import io.conduit.flink.ConduitSink;
 import io.conduit.flink.ConduitSource;
 import io.conduit.opencdc.Record;
+import io.conduit.opencdc.StructuredData;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -14,7 +15,10 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class PostgresToFile {
     public static void main(String[] args) throws Exception {
-        var env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // Create the execution environment, configure checkpointing
+        var env = StreamExecutionEnvironment.getExecutionEnvironment().enableCheckpointing(1000);
+        env.getCheckpointConfig().setCheckpointStorage("file:///tmp/flink-checkpoint-storage/");
+
         // Used to correlate all the pipelines which are part of this app
         String appId = "conduit-flink-demo";
 
@@ -33,11 +37,12 @@ public class PostgresToFile {
 
         DataStream<Record> in = env.fromSource(
                 source,
-                WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(1)),
+                WatermarkStrategy.forMonotonousTimestamps(),
                 "demo-postgres-source"
             ).map((MapFunction<Record, Record>) value -> {
                 value.getMetadata().put("processed-by", "flink");
                 value.getMetadata().put("another-key", "flink-value");
+                ((StructuredData) value.getPayload().getAfter()).put("department", "engineering");
                 return value;
             })
             .setParallelism(1);

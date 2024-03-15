@@ -26,7 +26,8 @@ public class ConduitSource extends Connector {
             .setTopics(KAFKA_TOPIC)
             .setBootstrapServers(KAFKA_SERVERS)
             .setGroupId("conduit-source-" + appId)
-            .setStartingOffsets(OffsetsInitializer.earliest())
+            .setStartingOffsets(OffsetsInitializer.committedOffsets())
+            .setProperty("commit.offsets.on.checkpoint", "true")
             .setDeserializer(KafkaRecordDeserializationSchema.valueOnly(RecordDeserializer.class))
             .build();
     }
