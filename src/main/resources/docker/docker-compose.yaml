@@ -5,7 +5,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - "/tmp/file-destination.txt:/tmp/file-destination.txt"
+      - "/tmp/:/tmp/"
+      - "./connectors/:/app/connectors/"
+      - "/etc/ssl/certs/:/etc/ssl/certs/"
   pg-0:
     image: debezium/postgres:14
     ports:

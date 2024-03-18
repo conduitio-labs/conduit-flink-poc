@@ -4,7 +4,6 @@ CREATE TABLE employees (
     id int NOT NULL,
     name varchar(255),
     full_time bool,
-    updated_at timestamptz NOT NULL,
     PRIMARY KEY (id)
 );
 CREATE SEQUENCE employees_id_seq;
