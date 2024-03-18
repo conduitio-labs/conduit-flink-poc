@@ -19,7 +19,6 @@ public class PostgresToSnowflake {
         // Used to correlate all the pipelines which are part of this app
         String appId = "conduit-flink-demo";
 
-        // todo use builder
         KafkaSource<Record> source = new ConduitSource(
             appId,
             "builtin:postgres",
@@ -43,7 +42,6 @@ public class PostgresToSnowflake {
             })
             .setParallelism(1);
 
-        // todo use builder
         var conduitSink = new ConduitSink(
             appId,
             "snowflake",
