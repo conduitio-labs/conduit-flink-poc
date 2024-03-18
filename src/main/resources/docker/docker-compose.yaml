@@ -1,12 +1,13 @@
 version: '3'
 services:
   conduit:
-    image: ghcr.io/conduitio/conduit:v0.9.0
+    image: conduit:local-latest
     ports:
       - "8080:8080"
     volumes:
-      - "/tmp/file-destination.txt:/tmp/file-destination.txt"
+      - "/tmp/:/tmp/"
       - "./connectors/:/app/connectors/"
+      - "/etc/ssl/certs/:/etc/ssl/certs/"
   pg-0:
     image: debezium/postgres:14
     ports:

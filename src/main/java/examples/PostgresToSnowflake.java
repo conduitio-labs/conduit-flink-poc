@@ -48,10 +48,15 @@ public class PostgresToSnowflake {
             appId,
             "snowflake",
             new HashMap<>() {{
-                put("snowflake.username", "haris");
-                put("snowflake.password", "-f8EiqiqMsE7QK3P6dEhJH*Y");
+                put("sdk.batch.size", "1");
+                put("sdk.batch.delay", "1s");
+                // todo fill out
+                put("snowflake.username", "");
+                // todo fill out
+                put("snowflake.password", "");
                 put("snowflake.table", "EMPLOYEES");
-                put("snowflake.host", "zxa25233.us-east-1.snowflakecomputing.com");
+                // todo fill out
+                put("snowflake.host", "");
                 put("snowflake.port", "443");
                 put("snowflake.database", "CONDUIT_TEST_DB");
                 put("snowflake.schema", "STREAM_DATA");
