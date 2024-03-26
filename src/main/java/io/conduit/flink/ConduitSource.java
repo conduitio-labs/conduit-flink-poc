@@ -31,7 +31,7 @@ public class ConduitSource extends Connector {
     }
 
     private String kafkaSourceTopic() {
-        return System.getProperty("conduit.source.pipeline.topic", "flink-topic-sink");
+        return System.getProperty("conduit.source.pipeline.topic", "flink-topic-source");
     }
 
     @Override
