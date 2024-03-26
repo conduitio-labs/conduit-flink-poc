@@ -4,6 +4,8 @@ on:
     branches:
       - 'main'
       - 'haris/refactoring'
+    tags:
+      - v*
 jobs:
   publish:
     runs-on: ubuntu-latest
