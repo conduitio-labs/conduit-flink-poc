@@ -11,14 +11,16 @@ import io.conduit.client.ApiClient;
 import io.conduit.client.ApiException;
 import io.conduit.client.model.*;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ConduitServiceApi {
     private final PipelineServiceApi pipelineService;
     private final ConnectorServiceApi connectorService;
     private final ProcessorServiceApi processorService;
 
-    public ConduitServiceApi() {
-        ApiClient apiClient = new ApiClient().setBasePath("http://localhost:8080");
+    public ConduitServiceApi(String basePath) {
+        ApiClient apiClient = new ApiClient().setBasePath(basePath);
         this.pipelineService = new PipelineServiceApi(apiClient);
         this.connectorService = new ConnectorServiceApi(apiClient);
         this.processorService = new ProcessorServiceApi(apiClient);

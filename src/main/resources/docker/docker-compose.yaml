@@ -1,19 +1,10 @@
-version: '3'
 services:
-  conduit:
-    image: ghcr.io/conduitio/conduit:v0.9.0
-    ports:
-      - "8080:8080"
-    volumes:
-      - "/tmp/:/tmp/"
-      - "./connectors/:/app/connectors/"
-      - "/etc/ssl/certs/:/etc/ssl/certs/"
-  pg-0:
+  pg:
     image: debezium/postgres:14
     ports:
       - "5432:5432"
     volumes:
-      - "pg_0_data:/bitnami/postgresql"
+      - "pg_data:/bitnami/postgresql"
       - "./conf.d/:/bitnami/postgresql/conf/conf.d/"
       - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
     healthcheck:
@@ -72,5 +63,5 @@ services:
       kafka-topics --bootstrap-server kafka:29092 --list
       "
 volumes:
-  pg_0_data:
+  pg_data:
     driver: local
