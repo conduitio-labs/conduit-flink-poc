@@ -27,7 +27,7 @@ public class PostgresToFile {
             appId,
             "builtin:postgres",
             Map.of(
-                "url", "postgresql://meroxauser:meroxapass@pg-0/meroxadb?sslmode=disable",
+                "url", "postgresql://meroxauser:meroxapass@localhost/meroxadb?sslmode=disable",
                 "key", "id",
                 "table", "employees",
                 "snapshotMode", "never",

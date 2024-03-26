@@ -12,12 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 abstract class Connector {
-    protected static final String KAFKA_SERVERS = "localhost:9092";
-    protected static final String KAFKA_SERVERS_INTERNAL_ADDRESS = "kafka:29092";
-
     enum Type {
-        source,
-        destination
+        SOURCE,
+        DESTINATION
     }
 
     protected final String appId;
@@ -32,26 +29,36 @@ abstract class Connector {
         this.type = type;
         this.plugin = plugin;
         this.settings = settings;
-        this.conduit = new ConduitServiceApi();
+        this.conduit = new ConduitServiceApi(conduitUrl());
     }
 
     protected abstract PipelineConfig buildPipeline();
+
+    private String conduitUrl() {
+        return System.getProperty("conduit.url", "http://localhost:8080");
+    }
+
+    protected String kafkaServers() {
+        return System.getProperty("conduit.kafka.servers", "localhost:9092");
+    }
 
     @SneakyThrows
     protected void createPipeline() {
         PipelineConfig pipeline = buildPipeline();
         String id;
         try {
+            log.debug("creating pipeline {}", pipeline.getName());
             id = conduit.createPipeline(pipeline);
         } catch (ApiException e) {
             if (pipelineExists(e)) {
-                log.info("pipeline already exists");
+                log.info("pipeline {} already exists", pipeline.getName());
                 id = conduit.getPipelineIdForName(pipeline.getName());
             } else {
                 throw e;
             }
         }
 
+        log.debug("waiting for pipeline {} to transition into 'running'", id);
         var status = conduit.waitForPipeline(id, Duration.ofSeconds(30));
         if (status != V1PipelineStatus.RUNNING) {
             throw new IllegalStateException(

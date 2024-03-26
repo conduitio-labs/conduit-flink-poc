@@ -13,10 +13,8 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 
 @Slf4j
 public class ConduitSource extends Connector {
-    private static final String KAFKA_TOPIC = "flink-topic-source";
-
     public ConduitSource(String appId, String plugin, Map<String, String> settings) {
-        super(appId, Type.source, plugin, settings);
+        super(appId, Type.SOURCE, plugin, settings);
     }
 
     public KafkaSource<Record> buildKafkaSource() {
@@ -24,12 +22,16 @@ public class ConduitSource extends Connector {
 
         // todo auto-create topic
         return KafkaSource.<Record>builder()
-            .setTopics(KAFKA_TOPIC)
-            .setBootstrapServers(KAFKA_SERVERS)
+            .setTopics(kafkaSourceTopic())
+            .setBootstrapServers(kafkaServers())
             .setGroupId("conduit-source-" + appId)
             .setStartingOffsets(OffsetsInitializer.committedOffsets(OffsetResetStrategy.EARLIEST))
             .setDeserializer(KafkaRecordDeserializationSchema.valueOnly(RecordDeserializer.class))
             .build();
+    }
+
+    private String kafkaSourceTopic() {
+        return System.getProperty("conduit.source.pipeline.topic", "flink-topic-source");
     }
 
     @Override
@@ -47,8 +49,8 @@ public class ConduitSource extends Connector {
                 .type("destination")
                 .plugin("kafka")
                 .settings(Map.of(
-                    "servers", KAFKA_SERVERS_INTERNAL_ADDRESS,
-                    "topic", KAFKA_TOPIC
+                    "servers", kafkaServers(),
+                    "topic", kafkaSourceTopic()
                 ))
                 .build()
             )

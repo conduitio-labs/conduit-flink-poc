@@ -16,10 +16,8 @@ import org.apache.flink.connector.kafka.sink.KafkaSink;
 @Setter
 @Slf4j
 public class ConduitSink extends Connector {
-    private static final String KAFKA_TOPIC = "flink-topic-sink";
-
     public ConduitSink(String appId, String plugin, Map<String, String> settings) {
-        super(appId, Type.destination, plugin, settings);
+        super(appId, Type.DESTINATION, plugin, settings);
     }
 
     public Sink<Record> buildKafkaSink() {
@@ -27,13 +25,17 @@ public class ConduitSink extends Connector {
 
         KafkaRecordSerializationSchemaBuilder<Record> serializerBuilder = KafkaRecordSerializationSchema
             .<Record>builder()
-            .setTopic(KAFKA_TOPIC)
+            .setTopic(kafkaSinkTopic())
             .setKafkaValueSerializer(RecordSerializer.class);
 
         return KafkaSink.<Record>builder()
             .setRecordSerializer(serializerBuilder.build())
-            .setBootstrapServers(KAFKA_SERVERS)
+            .setBootstrapServers(kafkaServers())
             .build();
+    }
+
+    private String kafkaSinkTopic() {
+        return System.getProperty("conduit.destination.pipeline.topic", "flink-topic-sink");
     }
 
     @Override
@@ -45,8 +47,8 @@ public class ConduitSink extends Connector {
                 .type("source")
                 .plugin("kafka")
                 .settings(Map.of(
-                    "servers", KAFKA_SERVERS_INTERNAL_ADDRESS,
-                    "topic", KAFKA_TOPIC,
+                    "servers", kafkaServers(),
+                    "topic", kafkaSinkTopic(),
                     "readFromBeginning", "true"
                 ))
                 .build()
