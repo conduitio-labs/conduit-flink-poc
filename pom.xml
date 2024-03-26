@@ -4,9 +4,30 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.conduit</groupId>
+    <groupId>com.meroxa</groupId>
     <artifactId>conduit-flink-connector</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+
+
+    <name>conduit-flink-connector</name>
+    <description>Conduit source and sink connector for Apache Flink</description>
+    <url>https://github.com/conduitio-labs/conduit-flink-connector/</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Meroxa Developers</name>
+            <email>support@meroxa.io</email>
+            <organization>Meroxa, Inc.</organization>
+            <organizationUrl>https://meroxa.com</organizationUrl>
+        </developer>
+    </developers>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
